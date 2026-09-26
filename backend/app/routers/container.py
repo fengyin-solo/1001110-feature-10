@@ -30,6 +30,15 @@ def list_entries(
     return PageResult(items=items, total=total, page=page, size=size)
 
 
+@router.get("/condition-view")
+def condition_view() -> dict[str, Any]:
+    """箱况视图：按箱型×箱况等级汇总在港箱量、四种箱况占比与需核对的箱号。
+
+    与箱况清单读取同一份档案数据，刷新后两边数字保持一致。
+    """
+    return service.condition_view()
+
+
 @router.get("/{entry_id}", response_model=dict)
 def get_entry(entry_id: int) -> dict:
     """读取单条集装箱明细；不存在时给出可读的错误说明。"""
