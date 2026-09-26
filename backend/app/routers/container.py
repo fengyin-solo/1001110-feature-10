@@ -30,6 +30,22 @@ def list_entries(
     return PageResult(items=items, total=total, page=page, size=size)
 
 
+@router.get("/condition")
+def condition_view() -> dict[str, Any]:
+    """箱况视图：按箱型×箱况等级汇总在港箱量，并给出四种箱况占比与异常箱号。
+
+    与清单接口读同一份内存数据，刷新后两侧数字一致；取数异常时返回可读说明，允许重试。
+    """
+    try:
+        return service.condition_snapshot()
+    except Exception as exc:  # noqa: BLE001 - 值班页需要可读说明而不是堆栈
+        raise HTTPException(
+            status_code=503,
+            detail="箱况视图数据暂时取不到，请稍后重试；箱况清单不受影响。"
+                   f"（原因：{exc}）",
+        ) from exc
+
+
 @router.get("/{entry_id}", response_model=dict)
 def get_entry(entry_id: int) -> dict:
     """读取单条集装箱明细；不存在时给出可读的错误说明。"""
